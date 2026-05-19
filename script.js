@@ -290,6 +290,8 @@ function initCalendar() {
     slotsGridEl.innerHTML = '';
 
     const occupied = occupiedSlots[day] || [];
+    const timeSelectedEl = $('#timeSelected');
+    const selectedHourText = $('#selectedHourText');
 
     allSlots.forEach(slot => {
       const btn = document.createElement('button');
@@ -319,11 +321,21 @@ function initCalendar() {
           horaInput.value = slot;
           clearError('hora');
         }
+        // Show selected time indicator
+        if (timeSelectedEl && selectedHourText) {
+          selectedHourText.textContent = slot;
+          timeSelectedEl.style.display = 'flex';
+        }
         renderSlots(day);
       });
 
       slotsGridEl.appendChild(btn);
     });
+
+    // Hide indicator if no slot selected
+    if (!selectedSlot && timeSelectedEl) {
+      timeSelectedEl.style.display = 'none';
+    }
   }
 
   on(prevMonthBtn, 'click', () => {
@@ -484,7 +496,6 @@ function initBookingForm() {
     email:     { el: $('#email'),     err: $('#emailError'),     validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Ingresá un email válido.' },
     whatsapp:  { el: $('#whatsapp'),  err: $('#whatsappError'),  validate: v => v.replace(/\D/g,'').length >= 8 ? '' : 'Ingresá un número de WhatsApp válido.' },
     fecha:     { el: $('#fecha'),     err: $('#fechaError'),     validate: v => v.trim() ? '' : 'Seleccioná una fecha del calendario.' },
-    hora:      { el: $('#hora'),      err: $('#horaError'),      validate: v => v.trim() ? '' : 'Seleccioná un horario disponible.' },
     sesion:    { el: $('#sesion'),    err: $('#sesionError'),    validate: v => v ? '' : 'Elegí el tipo de sesión.' },
     privacidad:{ el: $('#privacidad'),err: $('#privacidadError'),validate: v => v ? '' : 'Debes aceptar la política de privacidad.' },
   };
@@ -505,8 +516,9 @@ function initBookingForm() {
     e.preventDefault();
 
     let valid = true;
+    const horaInput = $('#hora');
 
-    // Validate all
+    // Validate all visible fields
     Object.entries(fields).forEach(([, { el, err, validate }]) => {
       if (!el) return;
       const val = el.type === 'checkbox' ? el.checked : el.value;
@@ -516,11 +528,20 @@ function initBookingForm() {
       if (msg) valid = false;
     });
 
+    // Validate hidden hora field
+    if (!horaInput || !horaInput.value.trim()) {
+      valid = false;
+      showToast('⚠️ Debe seleccionar un horario en el calendario antes de enviar la reserva.', 'error');
+    }
+
     if (!valid) {
       // Scroll to first error
       const firstErr = form.querySelector('.form-input.error, input.error');
-      firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      showToast('Por favor corregí los campos marcados.', 'error');
+      if (firstErr) firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!horaInput || !horaInput.value.trim()) {
+        // Scroll to calendar if hour not selected
+        $('#slotsGrid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 

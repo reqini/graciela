@@ -1337,6 +1337,36 @@ ul { list-style: none; }
   text-decoration: line-through;
 }
 
+.time-selected {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--c-text-2);
+}
+
+.selected-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #4CAF50;
+  color: #fff;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+
+.selected-text { flex: 1; }
+.selected-text strong { color: var(--c-text); font-weight: 400; }
+
 /* Form */
 .form-panel {
   display: flex;
